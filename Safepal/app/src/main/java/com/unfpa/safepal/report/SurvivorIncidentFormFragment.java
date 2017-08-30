@@ -75,6 +75,7 @@ public class SurvivorIncidentFormFragment extends Fragment {
     private static EditText sifIncidentLocationEt;
     private static EditText sifSurvivorPhonenumberEt;
     private static EditText sifIncidentDetailsEt;
+
     private static Snackbar sifFeedbackSnackbar;
 
     //Data Layer
@@ -364,7 +365,7 @@ public class SurvivorIncidentFormFragment extends Fragment {
         }
 
         //checks if the a proper story is told by the survivor
-        if ( sifSurvivorPhonenumber.length() < 10) {
+        if ( sifSurvivorPhonenumber.length() < 12) {
             Snackbar.make(rootView, "Enter correct phone number.", Snackbar.LENGTH_LONG).show();
             textInputLayoutStory.setError(context.getString(R.string.cannotLeaveBlank));
             return ReportingActivity.STATUS_SUBMIT_REPORT_ERROR;

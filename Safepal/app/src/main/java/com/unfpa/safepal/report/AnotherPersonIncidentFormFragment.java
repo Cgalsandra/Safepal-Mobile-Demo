@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,6 +91,7 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
     private static Spinner spinnerAgeRange;
     private static AutoCompleteTextView apifIncidentLocationEt;
     private static EditText apifIncidentDetailsEt;
+    private static EditText apifSurvivorPhonenumberEt;
 
     //user location
     private  static UserLocation apifGPS;
@@ -181,22 +184,48 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
 
         apifIncidentLocationEt = (AutoCompleteTextView) rootView.findViewById(R.id.incident_location_actv);
         apifIncidentDetailsEt = (EditText)rootView.findViewById(R.id.sif_incident_details_et);
-
+        apifSurvivorPhonenumberEt = (EditText)rootView.findViewById(R.id.apif_survivor_contact_et);
 
         textInputLayoutStory = (TextInputLayout)rootView.findViewById(R.id.input_latout_story);
 
-//        //setting up apif toolbar with logo
-//        setSupportActionBar(apifToolbar);
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
-//        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
-//        getSupportActionBar().setDisplayUseLogoEnabled(true);
+
+
+        apifSurvivorPhonenumberEt.addTextChangedListener(new TextWatcher() {
+            int length_before = 0;
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                length_before = s.length();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (length_before < s.length()) {
+
+                    if (s.length() == 4 || s.length() == 8)
+                        s.append("-");
+                    if (s.length() > 4) {
+                        if (Character.isDigit(s.charAt(4)))
+                            s.insert(4, "-");
+                    }
+                    if (s.length() > 8) {
+                        if (Character.isDigit(s.charAt(8)))
+                            s.insert(8, "-");
+
+                    }
+                }
+
+            }
+        });
+
 
         //load messages
         apifLoadMessages();
 
-        //click actions
-
-          //loads autocomplete places
         //ArrayAdapter<String> apifReportPlacesAdapter = new ArrayAdapter<String>(getActivity(),
           //      android.R.layout.simple_dropdown_item_1line, getResources().getStringArray(R.array.auto_complete_report_places));
         apifIncidentLocationEt.setAdapter(new GooglePlacesAutocompleteAdapter(rootView.getContext(), R.layout.location_list_item));
@@ -416,6 +445,17 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
         }
 
 
+
+
+        //checks if the a proper story is told by the survivor
+        if ( apifSurvivorPhonenumberEt.length() < 12) {
+            Snackbar.make(rootView ,"Kindly narrate the story of the incident that happened him/her",
+                    Snackbar.LENGTH_LONG).show();
+            textInputLayoutStory.setError(context.getString(R.string.cannotLeaveBlank));
+            return ReportingActivity.STATUS_SUBMIT_REPORT_ERROR;
+        }
+
+
         String apifReportedBy = relationshipToSurvivor;
 
         Log.d(TAG, "Relationship to..: " + apifReportedBy );
@@ -427,6 +467,7 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
         String apifIncidentStory = apifIncidentDetailsEt.getText().toString();;
         String apifUniqueIdentifier = SurvivorIncidentFormFragment.generateTempSafePalNumber(10000,99999);
 
+        String apifContact = apifSurvivorPhonenumberEt.getText().toString();
         /**
          * inserts incident report in to the mysql db through a content provider
          * **/
@@ -442,7 +483,7 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
 
         values.put(ReportIncidentTable.COLUMN_REPORTER_LOCATION_LAT, Double.toString(userLatitude));
         values.put(ReportIncidentTable.COLUMN_REPORTER_LOCATION_LNG, Double.toString(userLongitude));
-        values.put(ReportIncidentTable.COLUMN_REPORTER_PHONE_NUMBER, "null");
+        values.put(ReportIncidentTable.COLUMN_REPORTER_PHONE_NUMBER, apifContact);
         values.put(ReportIncidentTable.COLUMN_REPORTER_EMAIL, "null");
 
 
