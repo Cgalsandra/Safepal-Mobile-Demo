@@ -39,7 +39,7 @@ public class AddReportService extends IntentService {
 
     /**
     /**
-     * An IntentService must always have a constructor that calls the super constructor. The
+     * An IntentService ymust always have a constructor that calls the super constructor. The
      * string supplied to the super constructor is used to give a name to the IntentService's
      * background thread.
      */

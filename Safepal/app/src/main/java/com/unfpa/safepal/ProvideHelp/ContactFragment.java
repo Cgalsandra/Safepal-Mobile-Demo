@@ -265,7 +265,7 @@ public class ContactFragment extends Fragment {
         if (cursor != null) {
             StringBuilder offline = new StringBuilder();
             cursor.moveToLast();
-            offline.append("Your SafePal Number is: " + cursor.getString(cursor.getColumnIndex(ReportIncidentTable.COLUMN_UNIQUE_IDENTIFIER)));
+            offline.append(cursor.getString(cursor.getColumnIndex(ReportIncidentTable.COLUMN_UNIQUE_IDENTIFIER)));
 
             cursor.close();
             contactSafepalNo.setText(offline);

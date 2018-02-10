@@ -56,7 +56,7 @@ public class CsoActivity extends AppCompatActivity {
 
 
 
-    TextView csoSafepalNo, csoContactInfo,csoAssuranceHelp, csoEncouragingMessagesTV;
+    TextView csoSafepalNo, csoContactInfo, csoEncouragingMessagesTV;
 
     //variables for the nearest cso list
 
@@ -71,7 +71,7 @@ public class CsoActivity extends AppCompatActivity {
     private LinearLayout csoNoInternetLL;
     private Button csoNoInternetButton;
     // TheCSOs json url
-    private static final String URL_CSO_API = "http://52.43.152.73/api/location.php";
+    //private static final String URL_CSO_API = "http://52.43.152.73/api/location.php";
      //This is a temporary list of cso's hard coded here
 
 
@@ -98,8 +98,7 @@ public class CsoActivity extends AppCompatActivity {
         // choose someone else relationship spinner
         csoEncouragingMessagesTV = (TextView) findViewById(R.id.cso_ecouraging_messages_tv);
         csoSafepalNo = (TextView)findViewById(R.id.cso_safepal_number);
-        csoContactInfo= (TextView)findViewById(R.id.cso_contact_info);
-        csoAssuranceHelp = (TextView)findViewById(R.id.cso_assurance_help);
+        csoContactInfo= (TextView)findViewById(R.id.cso_contact_number);
 
         Toolbar csoToolbar = (Toolbar) findViewById(R.id.cso_toolbar);
         setSupportActionBar(csoToolbar);
@@ -223,7 +222,7 @@ public class CsoActivity extends AppCompatActivity {
         if(cursor != null) {
             StringBuilder offline = new StringBuilder();
             cursor.moveToLast();
-            offline.append("Your SafePal Number is: " + cursor.getString(cursor.getColumnIndex(ReportIncidentTable.COLUMN_UNIQUE_IDENTIFIER)));
+            offline.append(cursor.getString(cursor.getColumnIndex(ReportIncidentTable.COLUMN_UNIQUE_IDENTIFIER)));
 
 
             csoSafepalNo.setText(offline);
@@ -272,15 +271,13 @@ public class CsoActivity extends AppCompatActivity {
             String dbEmailString =  cursorRetrieveLatLng.getString(cursorRetrieveLatLng.getColumnIndex(ReportIncidentTable.COLUMN_REPORTER_EMAIL));
 
             if(dbPhoneString.length()>8){
-                csoContactInfo.setText("Contact Phonenumber: " + dbPhoneString);
-                csoAssuranceHelp.setText("Safepal will contact you on the above phonenumber.");
+                csoContactInfo.setText(dbPhoneString);
                 if(dbEmailString.length()>8){
                     csoContactInfo.setText("Contact Phonenumber: " + dbPhoneString+ "\nContact Email: " +dbEmailString);
-                    csoAssuranceHelp.setText("Safepal will contact you on the above phonenumber or email. "); }
+                     }
             }
             else {
                 csoContactInfo.setText("No Contacts provided. " );
-                csoAssuranceHelp.setText("Since you did not provide a contact number, safepal service providers will not be able to contact you directly. But you can still walk in to any of the service providers below with your safepal number and they will attend to you. ");
 
             }
 

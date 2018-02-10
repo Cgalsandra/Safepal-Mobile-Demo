@@ -36,7 +36,7 @@ public class RIContentObserver extends ContentObserver {
         if(cursor != null) {
             StringBuilder builder = new StringBuilder();
             cursor.moveToLast();
-                builder.append("Your SafePal Number is: " + cursor.getString(cursor.getColumnIndex(ReportIncidentTable.COLUMN_UNIQUE_IDENTIFIER)));
+                builder.append(cursor.getString(cursor.getColumnIndex(ReportIncidentTable.COLUMN_UNIQUE_IDENTIFIER)));
 
             cursor.close();
             String builder2 = builder.toString();

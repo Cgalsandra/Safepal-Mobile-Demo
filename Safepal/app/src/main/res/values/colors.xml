@@ -8,6 +8,8 @@
     <color name="colorOrange">#FCB040 </color>
     <color name="colorGrey">#d7d7d7</color>
     <color name="colorWhite">#FFFDFDFE</color>
+
+    <color name="colorVeryBlack">#000000</color>
     <!--FAB colors-->
     <color name="colorGreyDarker">#808080</color>
     <!--image color-->
