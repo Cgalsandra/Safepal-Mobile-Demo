@@ -27,9 +27,8 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ReportingActivity extends AppCompatActivity implements SurvivorIncidentFormFragment.OnFragmentInteractionListener,
-ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment.OnFragmentInteractionListener{
+ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment.OnFragmentInteractionListener {
     private Retrofit retrofit;
-    private SafePalAPI safePalAPI;
     String TAG = ReportingActivity.class.getSimpleName();
     /**
      * Next and buttonExit button
@@ -44,8 +43,7 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
         setContentView(R.layout.activity_reporting);
         Toolbar toolbar = (Toolbar) findViewById(R.id.reporting_toolbar);
         setSupportActionBar(toolbar);
-         //update contact service
-
+        //update contact service
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -72,7 +70,6 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient.build())
                 .baseUrl(Constant.END_POINT).build();
-        safePalAPI = retrofit.create(SafePalAPI.class);
 
 
     }
@@ -86,6 +83,7 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
     public static final int STATUS_SUBMIT_REPORT_SUBMITED = 0;
     public static final int STATUS_SUBMIT_REPORT_ERROR = 1;
     public static final int STATUS_SUBMIT_REPORT_ALREADY_AVAILABLE = 2;
+
     private void manageUI() {
         //look for vies
         //Abort fab of  who's getting help activity
@@ -104,16 +102,16 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
                         //Log.d(TAG, "loading reporting fragment for self");
                         loadReportingFormSelfFragment();//used in the WHoIsGettingHelp Fragment
                         updateNextButtonToSubmit();
-                    } else if (WhoSGettingHelpFragment.wsghSomeelseRb.isChecked()){//happened to someone else
+                    } else if (WhoSGettingHelpFragment.wsghSomeelseRb.isChecked()) {//happened to someone else
                         if (WhoSGettingHelpFragment.wsghRelationshipSpinner.getSelectedItemPosition() <= 0) {
                             WhoSGettingHelpFragment.wsghFeedbackSnackbar = Snackbar.make(view, "what is your relationship to survivor?", Snackbar.LENGTH_LONG);
                             WhoSGettingHelpFragment.wsghFeedbackSnackbar.show();
-                        }else {
+                        } else {
                             //Log.d(TAG, "loading reporting fragment for happeed to someone else");
                             loadReportingFormSomeOneElseFragment();
                             updateNextButtonToSubmit();
                         }
-                    }else {
+                    } else {
                         Toast.makeText(getBaseContext(), "Who did the incident happen to? Choose one of the options to proceed.", Toast.LENGTH_LONG).show();
                     }
 
@@ -123,13 +121,13 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
                     Log.d(TAG, "submitting another-person form");
                     int status = AnotherPersonIncidentFormFragment.submitForm(getBaseContext());//submit the form
 
-                    if((status == ReportingActivity.STATUS_SUBMIT_REPORT_SUBMITED) || (status == ReportingActivity.STATUS_SUBMIT_REPORT_ALREADY_AVAILABLE)){
+                    if ((status == ReportingActivity.STATUS_SUBMIT_REPORT_SUBMITED) || (status == ReportingActivity.STATUS_SUBMIT_REPORT_ALREADY_AVAILABLE)) {
 
                         Intent csoIntent = new Intent(getBaseContext(), CsoActivity.class);
                         startActivity(csoIntent);
                         finish();//close this activity after opening another.
 
-                    }else{
+                    } else {
                         Log.d(TAG, "error in data????");
                     }
 
@@ -137,7 +135,7 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
                         SurvivorIncidentFormFragment.class.getSimpleName()))) {//cuurent frag SurvivorIncidentFormFragment
                     Log.d(TAG, "submitting self-form");
                     int status = SurvivorIncidentFormFragment.submitForm(getBaseContext());//submit the form
-                    if((status == ReportingActivity.STATUS_SUBMIT_REPORT_SUBMITED) || (status == ReportingActivity.STATUS_SUBMIT_REPORT_ALREADY_AVAILABLE)){
+                    if ((status == ReportingActivity.STATUS_SUBMIT_REPORT_SUBMITED) || (status == ReportingActivity.STATUS_SUBMIT_REPORT_ALREADY_AVAILABLE)) {
 
                         Intent csoIntent = new Intent(getBaseContext(), CsoActivity.class);
                         startActivity(csoIntent);
@@ -145,25 +143,25 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
 
 
                         Log.d(TAG, "SurvivorIncidentFormFragment.submitForm successfull. Loading contact frag");
-                    }else {
+                    } else {
                         Log.d(TAG, "errpr on data????");
                     }
 
-                }else if (isFragmentVisible(getFragmentManager().findFragmentByTag(
+                } else if (isFragmentVisible(getFragmentManager().findFragmentByTag(
                         ContactFragment.class.getSimpleName()))) {//cuurent frag ContactFragment
 
-                    if(ContactFragment.areFieldsSet(getBaseContext())){//if all foed are set
+                    if (ContactFragment.areFieldsSet(getBaseContext())) {//if all foed are set
                         Log.d("Code", "reached");
 //                        updateNetworkContat();
 
                         Intent csoIntent = new Intent(getBaseContext(), CsoActivity.class);
                         startActivity(csoIntent);
                         finish();//close this activity after opening another.
-                    }else{
+                    } else {
                         Log.w(TAG, "some fields empty");
                     }
 
-                }else {
+                } else {
                     Log.e(TAG, "Dont know what to do!!!!");
                 }
             }
@@ -212,7 +210,7 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
      * Loads fragment with form for submitting details about someone else who has
      * suffered violence
      */
-    public  void loadReportingFormSomeOneElseFragment() {
+    public void loadReportingFormSomeOneElseFragment() {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -238,7 +236,7 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
 
         //SurvivorIncidentFormFragment fragment = new SurvivorIncidentFormFragment();
         SurvivorIncidentFormFragment fragment = SurvivorIncidentFormFragment
-                .newInstance( "UNUSED", "UNUSED");
+                .newInstance("UNUSED", "UNUSED");
         if (isFragmentVisible(fragment)) {
             Log.d(TAG, "SurvivorIncidentFormFragment is already visible, not reforming another...");
         } else {
@@ -270,24 +268,7 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
 
     }
 
-//    /**
-//     * loads reporting for for the survivir him self
-//     */
-//    private void loadContactFragment() {
-//
-//        FragmentManager fragmentManager = getFragmentManager();
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//
-//        ContactFragment fragment = new ContactFragment();
-//        if (isFragmentVisible(fragment)) {
-//            Log.d(TAG, "ContactFragment is already visible, not reforming another...");
-//        } else {
-//            fragmentTransaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
-//            fragmentTransaction.replace(R.id.fragment_container, fragment, ContactFragment.class.getSimpleName());
-//            fragmentTransaction.commit();
-//            Log.d(TAG, "loaded 'ContactFragment' fragment");
-//        }
-//    }
+
 
     private boolean isFragmentVisible(Fragment fragment) {
         if ((fragment != null) &&
@@ -300,156 +281,7 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
     public void onFragmentInteraction(Uri uri) {
 
     }
-
-//
-//    public void updateNetworkContat(){
-//
-//        String updateContactUrl = "https://api-safepal.herokuapp.com/index.php/api/v1/reports/addcontact";
-//
-//        Log.d("UpdateContact ","Service Started");
-//
-//
-//        Cursor cursor =  getContentResolver().query(
-//                ReportIncidentContentProvider.CONTENT_URI,
-//                null,
-//                null,
-//                null,
-//                null);
-//        if (cursor != null) {
-//            cursor.moveToLast();
-//
-//            updateContactToServer(
-//                    cursor.getString(cursor.getColumnIndex(ReportIncidentTable.COLUMN_UNIQUE_IDENTIFIER)),
-//                    cursor.getString(cursor.getColumnIndex(ReportIncidentTable.COLUMN_REPORTER_PHONE_NUMBER)));
-//
-//        }
-//        cursor.close();
-//
-//
-//    }
-
-//
-//    public  void updateContactToServer(final String toServerCasenumber, final String toServerContact){
-//        Observable<TokenResponse> resp = safePalAPI.getToken().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
-//        resp.subscribe(new Subscriber<TokenResponse>() {
-//            @Override
-//            public void onCompleted() {
-//
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//
-//            }
-//
-//            @Override
-//            public void onNext(TokenResponse tokenResponse) {
-//                Observable<ContactResponse> resp = safePalAPI.addContact(new Contact(tokenResponse.getToken(),
-//                        toServerCasenumber, toServerContact))
-//                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
-//                resp.subscribe(new Subscriber<ContactResponse>() {
-//                    @Override
-//                    public void onCompleted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onNext(ContactResponse contactResponse) {
-//                        Log.d("CONTACT_UPDATED", contactResponse.getMessage());
-//                    }
-//                });
-//            }
-//        });
-//        getUpdateTokenFromServer(new VolleyCallback() {
-//            @Override
-//            public void onSuccessResponse(String tokenResponse)  {
-//
-//                try{
-//                    JSONObject tokenObject = new JSONObject(tokenResponse);
-//                    final  String  serverReceivedToken = tokenObject.getString("token");
-//                    // This volley request sends a report to the server with the received token
-//                    StringRequest updateContactRequest = new StringRequest(Request.Method.POST, updateContactUrl,
-//                            new Response.Listener<String>() {
-//                                @Override
-//                                public void onResponse(String updateContactReponse) {
-//                                    Log.d("kkkkk", updateContactReponse);
-//                                }
-//                            },
-//                            new Response.ErrorListener() {
-//                                @Override
-//                                public void onErrorResponse(VolleyError error) {
-//                                    Log.d("Not Submitted", error.getMessage());
-//                                }
-//                            }){
-//
-//                        @Override
-//                        protected Map<String, String> getParams() throws AuthFailureError {
-//                            HashMap<String, String> updateContact = new HashMap<String, String>();
-//
-//                            updateContact.put("token", serverReceivedToken);
-//                            updateContact.put("caseNumber", toServerCasenumber);
-//                            updateContact.put("contact",toServerContact);
-//                            return updateContact;                        }
-//
-//                        @Override
-//                        public Map<String, String> getHeaders() throws AuthFailureError {
-//                            HashMap<String, String> updateContactHeaders = new HashMap<String, String>();
-//                            updateContactHeaders.put("userid", "C7rPaEAN9NpPGR8e9wz9bzw");
-//                            return  updateContactHeaders;
-//                        }
-//
-//                    };
-//
-//
-//                    MySingleton.getInstance(getApplicationContext()).addToRequestQueue(updateContactRequest);
-//
-//
-//
-//                }catch (Exception e){e.printStackTrace();}
-//            }
-//        });
-    }
-
-//    //gets a new token from server
-//    public void getUpdateTokenFromServer(final VolleyCallback tokenCallback) {
-//
-//
-//        final String tokenUrl = " https://api-safepal.herokuapp.com/index.php/api/v1/auth/newtoken";
-//
-//        // This volley request gets a token from the server
-//        StringRequest tokenRequest = new StringRequest(Request.Method.GET, tokenUrl,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String tokenResponse) {
-//                        tokenCallback.onSuccessResponse(tokenResponse);
-//
-//
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        Log.d("Failed to get token", error.getMessage());
-//                    }
-//                }){
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                HashMap<String, String> headers = new HashMap<String, String>();
-//                headers.put("userid", "C7rPaEAN9NpPGR8e9wz9bzw");
-//
-//                return headers;
-//            }
-//        };
-//        //add request to queue
-//
-//        MySingleton.getInstance(this).addToRequestQueue(tokenRequest);
-//
-//    }
+}
 
 
 
