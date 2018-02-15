@@ -21,4 +21,6 @@
     <dimen name="intro_text_margin_top">10dp</dimen>
     <dimen name="cards_elevation">15dp</dimen>
 
+    <dimen name="safepal_no_size">35sp</dimen>
+
 </resources>

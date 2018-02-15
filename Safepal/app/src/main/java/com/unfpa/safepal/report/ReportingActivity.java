@@ -1,24 +1,44 @@
 package com.unfpa.safepal.report;
 
+import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.unfpa.safepal.ProvideHelp.ContactFragment;
 import com.unfpa.safepal.ProvideHelp.CsoActivity;
 import com.unfpa.safepal.R;
 import com.unfpa.safepal.service.Constant;
 import com.unfpa.safepal.service.SafePalAPI;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -26,8 +46,23 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ReportingActivity extends AppCompatActivity implements SurvivorIncidentFormFragment.OnFragmentInteractionListener,
-ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment.OnFragmentInteractionListener {
+public class ReportingActivity extends AppCompatActivity implements
+        SurvivorIncidentFormFragment.OnFragmentInteractionListener,
+        ContactFragment.OnFragmentInteractionListener,
+        AnotherPersonIncidentFormFragment.OnFragmentInteractionListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
+    //location
+    public static double userLatitude ;
+    public static double userLongitude ;
+
+    private FusedLocationProviderApi locationProvider = LocationServices.FusedLocationApi;
+    private GoogleApiClient googleApiClient;
+    private LocationRequest locationRequest;
+
+
+
     private Retrofit retrofit;
     String TAG = ReportingActivity.class.getSimpleName();
     /**
@@ -35,6 +70,9 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
      */
     Button buttonNext;
     Button buttonExit;
+
+   // public static double userLongitude =0;
+    //public static double userLatitude =0;
 
 
     @Override
@@ -45,8 +83,18 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
         setSupportActionBar(toolbar);
         //update contact service
 
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(30 * 1000);
+        locationRequest.setFastestInterval(10 * 1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 
         manageUI();
@@ -74,11 +122,6 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
 
     public static final int STATUS_SUBMIT_REPORT_SUBMITED = 0;
     public static final int STATUS_SUBMIT_REPORT_ERROR = 1;
@@ -281,6 +324,98 @@ ContactFragment.OnFragmentInteractionListener, AnotherPersonIncidentFormFragment
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+        requestLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        userLatitude = location.getLatitude() ;
+
+        userLongitude = location.getLongitude() ;
+        Log.d("lat:lng", Double.toString(location.getLatitude())+":"+Double.toString(location.getLongitude()));
+
+        //Toast.makeText(getApplicationContext(),Double.toString(location.getLatitude())+":"+Double.toString(location.getLongitude()), Toast.LENGTH_LONG ).show();
+    }
+
+    public void requestLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        googleApiClient.connect();
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(googleApiClient.isConnected())
+            requestLocationUpdates();
+
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        googleApiClient.disconnect();
+    }
+
+
+
+
+
+    public static Address getFullAddress(Context context, double latitude,double longitude)
+    {
+
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(context, Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(latitude,longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+            return addresses.get(0);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
 }
 
 

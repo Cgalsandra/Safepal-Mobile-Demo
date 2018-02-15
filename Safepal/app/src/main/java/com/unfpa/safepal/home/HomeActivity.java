@@ -116,11 +116,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if(checkLocationPermission())
-                // starts the reporting if location is granted
-                startActivity(new Intent(getApplicationContext(), ReportingActivity.class));
-
+                if(checkLocationPermission()){
+                   // Log.d("Status", "permission checked");
+                    // starts the reporting if location is granted
+               // startActivity(new Intent(getApplicationContext(), ReportingActivity.class));}
+                  openReporting();
+                }
                 else{
+
                     requestLocationPermission();
 
                 }
@@ -247,7 +250,7 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
-
+/*
     //expand encouraging messages
     public void onClickInfoPopUp(View view) {
         EMessageDialogFragment emDialog = EMessageDialogFragment.newInstance(
@@ -255,7 +258,7 @@ public class HomeActivity extends AppCompatActivity {
                 textViewMessage.getText().toString(),
                 getString(R.string.close_dialog));
         emDialog.show(getFragmentManager(), "encouraging message");
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -406,6 +409,11 @@ public class HomeActivity extends AppCompatActivity {
                                 return;
                             }
                         }
+                        //version less than Marshmallow
+                        else  {
+                            openReporting();
+                            Log.d("Status", "Handles location for android < version Marshmallow ");
+                        }
 
                     }
                 }
@@ -423,5 +431,9 @@ public class HomeActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", null)
                 .create()
                 .show();
+    }
+
+    public void openReporting(){
+        startActivity(new Intent(getApplicationContext(), ReportingActivity.class));
     }
 }

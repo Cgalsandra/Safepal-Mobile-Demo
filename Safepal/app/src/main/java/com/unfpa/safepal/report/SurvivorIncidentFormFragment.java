@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.location.Address;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +36,8 @@ import com.unfpa.safepal.store.ReportIncidentTable;
 
 import java.util.Random;
 
+import static com.unfpa.safepal.report.ReportingActivity.userLatitude;
+import static com.unfpa.safepal.report.ReportingActivity.userLongitude;
 import static com.unfpa.safepal.report.WhoSGettingHelpFragment.randMessageIndex;
 
 /**
@@ -48,9 +52,9 @@ public class SurvivorIncidentFormFragment extends Fragment {
 
 
     //user location
-    private  static UserLocation sifGPS;
-    private static  double userLatitude=0.0;
-    private static double userLongitude=0.0;
+    //private  static UserLocation sifGPS;
+    //private static  double userLatitude=0.0;
+    //private static double userLongitude=0.0;
 
     /**
      * sif - Stands for "Survivor Incident Form"
@@ -148,7 +152,7 @@ public class SurvivorIncidentFormFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_survivor_incident_form, container, false);
-        sifGPS = new UserLocation(getActivity());
+        //sifGPS = new UserLocation(getActivity());
 
 
         //Log.i(TAG, "taff is reaching in vreateView");
@@ -164,7 +168,20 @@ public class SurvivorIncidentFormFragment extends Fragment {
 
         sifGenderRG=(RadioGroup)rootView.findViewById(R.id.sif_gender_rg);
         sifIncidentTypeSpinner = (Spinner) rootView.findViewById(R.id.incident_type_spinner);
+
         sifIncidentLocationEt = (EditText) rootView.findViewById(R.id.incident_location_actv);
+        //set reporting location to incident placeholder
+        Address currentReportingAddress = ReportingActivity.getFullAddress(getActivity().getApplicationContext(), userLatitude, userLongitude);
+        if(currentReportingAddress!=null)
+        {
+            String address = currentReportingAddress.getAddressLine(0);
+            if(!TextUtils.isEmpty(address)) {
+                sifIncidentLocationEt.setText(address);
+            }
+
+        }
+
+
         sifIncidentDetailsEt = (EditText)rootView.findViewById(R.id.sif_incident_details_et);
         sifSurvivorPhonenumberEt = (EditText)rootView.findViewById(R.id.sif_survivor_contact_et);
         sifEncouragingMessagesTv= (TextView) rootView.findViewById(R.id.sif_encouraging_messages_tv);
@@ -240,7 +257,7 @@ public class SurvivorIncidentFormFragment extends Fragment {
         });
 
 
-        //picks the location of the user
+       /* //picks the location of the user
         if(sifGPS.canGetLocation()){
             if(sifGPS.getLatitude()!= 0.0 || sifGPS.getLongitude()!=0.0){
                 userLatitude= sifGPS.getLatitude();
@@ -250,7 +267,7 @@ public class SurvivorIncidentFormFragment extends Fragment {
         }
         else {
             sifGPS.showSettingsAlert();
-        }
+        }*/
 
         return rootView;
     }
@@ -302,13 +319,6 @@ public class SurvivorIncidentFormFragment extends Fragment {
 
     public static int submitForm(Context context) {
 
-        if(sifGPS.canGetLocation()){
-            if(sifGPS.getLatitude()!= 0.0 || sifGPS.getLongitude()!=0.0){
-                userLatitude= sifGPS.getLatitude();
-                userLongitude = sifGPS.getLongitude();
-            }
-
-        }
 
         //Toast.makeText(context,"Lat: "+ Double.toString(userLatitude) +"Long: "+ Double.toString(userLongitude), Toast.LENGTH_LONG).show();
         int genderRBId = sifGenderRG.getCheckedRadioButtonId();
@@ -335,6 +345,7 @@ public class SurvivorIncidentFormFragment extends Fragment {
         String incidentStory = sifIncidentDetailsEt.getText().toString();
         String sifSurvivorPhonenumber = sifSurvivorPhonenumberEt.getText().toString();
         String uniqueIdentifier = generateTempSafePalNumber(1000,9999);
+
 
 //
         /**
@@ -384,6 +395,7 @@ public class SurvivorIncidentFormFragment extends Fragment {
 
         values.put(ReportIncidentTable.COLUMN_REPORTER_LOCATION_LAT,userLatitude);
         values.put(ReportIncidentTable.COLUMN_REPORTER_LOCATION_LNG,userLongitude );
+
         values.put(ReportIncidentTable.COLUMN_REPORTER_PHONE_NUMBER, sifSurvivorPhonenumber);
         values.put(ReportIncidentTable.COLUMN_REPORTER_EMAIL, "null");
 

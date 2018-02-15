@@ -153,9 +153,9 @@ public class UserLocation extends Service implements LocationListener {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
 
 
-        alertDialog.setTitle("GPS Not Enabled");
+        alertDialog.setTitle("Turn on GPS");
 
-        alertDialog.setMessage("Do you wants to turn On GPS");
+        alertDialog.setMessage("Safepal needs to use GPS in order to work properly. ");
 
 
         alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {

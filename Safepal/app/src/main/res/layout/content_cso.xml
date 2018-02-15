@@ -83,7 +83,7 @@
                 android:layout_weight="1"
                 android:textStyle="bold"
                 android:textColor="@color/colorPrimary"
-                android:textSize="14dp"
+                android:textSize="@dimen/safepal_no_size"
                 />
             <TextView
                 android:id="@+id/cso_contact_info"

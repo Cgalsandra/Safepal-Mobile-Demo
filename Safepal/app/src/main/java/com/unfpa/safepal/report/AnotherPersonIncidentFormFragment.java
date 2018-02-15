@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.location.Address;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +40,8 @@ import com.unfpa.safepal.store.ReportIncidentTable;
 
 import java.util.Random;
 
+import static com.unfpa.safepal.report.ReportingActivity.userLatitude;
+import static com.unfpa.safepal.report.ReportingActivity.userLongitude;
 import static com.unfpa.safepal.report.WhoSGettingHelpFragment.randMessageIndex;
 
 /**
@@ -92,12 +96,6 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
     private static AutoCompleteTextView apifIncidentLocationEt;
     private static EditText apifIncidentDetailsEt;
     private static EditText apifSurvivorPhonenumberEt;
-
-    //user location
-    private  static UserLocation apifGPS;
-    private static  double userLatitude=0.0;
-    private static double userLongitude=0.0;
-
 
 
 
@@ -167,8 +165,6 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
         imageQnMark= (ImageView) rootView.findViewById(R.id.image_spinner_what_happed);
         textInputLayoutWhereHappened = (TextInputLayout)rootView.findViewById(R.id.inpu_latout_where);
 
-        apifGPS = new UserLocation(getActivity());
-
 
         //encouraging messages
         apifEncouragingMessagesTv = (TextView)rootView.findViewById(R.id.apif_encouraging_messages_tv);
@@ -183,6 +179,17 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
         spinnerAgeRange = (Spinner) rootView.findViewById(R.id.age_range_spinner);
 
         apifIncidentLocationEt = (AutoCompleteTextView) rootView.findViewById(R.id.incident_location_actv);
+        //set reporting location to incident placeholder
+        Address currentReportingAddress = ReportingActivity.getFullAddress(getActivity().getApplicationContext(), userLatitude, userLongitude);
+        if(currentReportingAddress!=null)
+        {
+            String address = currentReportingAddress.getAddressLine(0);
+            if(!TextUtils.isEmpty(address)) {
+                apifIncidentLocationEt.setText(address);
+            }
+
+        }
+
         apifIncidentDetailsEt = (EditText)rootView.findViewById(R.id.sif_incident_details_et);
         apifSurvivorPhonenumberEt = (EditText)rootView.findViewById(R.id.apif_survivor_contact_et);
 
@@ -324,17 +331,7 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
                 Layout.changeImageColor(getActivity(),
                         imageQnMark.getDrawable(), getResources().getColor(R.color.colorImages)));
 
-        //picks the location of the user
-        if(apifGPS.canGetLocation()){
-            if(apifGPS.getLatitude()!= 0.0 || apifGPS.getLongitude()!=0.0){
-            userLatitude= apifGPS.getLatitude();
-            userLongitude = apifGPS.getLongitude();
-            }
 
-        }
-        else {
-            apifGPS.showSettingsAlert();
-        }
 
 
         return rootView;
@@ -394,13 +391,6 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
     public static int submitForm(Context context) {
 
 
-        //picks the location of the user
-        if(apifGPS.canGetLocation()){
-            if(apifGPS.getLatitude()!= 0.0 || apifGPS.getLongitude()!=0.0){
-                userLatitude= apifGPS.getLatitude();
-                userLongitude = apifGPS.getLongitude();
-            }
-        }
 
         int genderRBApifId = apifGenderRG.getCheckedRadioButtonId();
 

@@ -19,30 +19,30 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="UnusedAttribute">
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCLxxb7QcBWzeSr8KaUhHTjZmoCxJ35SXc"/>
-        <meta-data android:name="android.max_aspect"
-            android:value="2.1"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCLxxb7QcBWzeSr8KaUhHTjZmoCxJ35SXc" />
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.1" />
         <!-- Google places meta data -->
 
         <activity
             android:name=".home.HomeActivity"
             android:autoRemoveFromRecents="true"
             android:label="@string/home_activity_title"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ProvideHelp.CsoActivity"
             android:autoRemoveFromRecents="true"
             android:label="@string/title_activity_contact"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <provider
             android:name=".store.ReportIncidentContentProvider"
@@ -73,9 +73,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.unfpa.safepal.home.HomeActivity" />
         </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="ce2a98765613a05fab5da52a5597e554b815136d" />
+
     </application>
 
 </manifest>

@@ -28,11 +28,13 @@ import android.widget.Toast;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.unfpa.safepal.Location.UserLocation;
 import com.unfpa.safepal.ProvideHelp.RVCsoModel.BeforeCsoInfo;
 import com.unfpa.safepal.ProvideHelp.RVCsoModel.CsoRvAdapter;
 import com.unfpa.safepal.ProvideHelp.RVCsoModel.TheCSO;
 import com.unfpa.safepal.R;
 import com.unfpa.safepal.messages.EMessageDialogFragment;
+import com.unfpa.safepal.report.SurvivorIncidentFormFragment;
 import com.unfpa.safepal.store.RIContentObserver;
 import com.unfpa.safepal.store.ReportIncidentContentProvider;
 import com.unfpa.safepal.store.ReportIncidentTable;
@@ -132,8 +134,11 @@ public class CsoActivity extends AppCompatActivity {
         buttonNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 //Log.d(TAG, "button next clicked");
-               finish();
+
+                //sifGPS.stopUsingGPS();
+                finish();
 
             }
         });
@@ -181,17 +186,20 @@ public class CsoActivity extends AppCompatActivity {
         beforeCsoList.add(new BeforeCsoInfo("Action Aid , Sir Apollo Rd",0.342041,32.562558,"+256414510363"));
 
 
-        for(int i =0 ; i<beforeCsoList.size(); i++){
-           if(getLat.equalsIgnoreCase("0.0")  || getLong =="0.0"){
-               csosList.add(new TheCSO(beforeCsoList.get(i).getBefore_cso_name(), "We failed to locate you", beforeCsoList.get(i).getBefore_cso_phonenumber()));
-           }
-            else{
-               String disBetweenCso = String.format("%.2f", geographicalDistance(
-                       Double.parseDouble(getLat),
-                       Double.parseDouble(getLong),
-                       beforeCsoList.get(i).getBefore_cso_lat(),
-                       beforeCsoList.get(i).getBefore_cso_long()));
+        for(int i =0 ; i<beforeCsoList.size(); i++) {
 
+            String disBetweenCso = String.format("%.2f", geographicalDistance(
+                    Double.parseDouble(getLat),
+                    Double.parseDouble(getLong),
+                    beforeCsoList.get(i).getBefore_cso_lat(),
+                    beforeCsoList.get(i).getBefore_cso_long()));
+
+            if (Double.parseDouble(disBetweenCso) > 189){
+                Log.d("distance from db", disBetweenCso);
+
+            csosList.add(new TheCSO(beforeCsoList.get(i).getBefore_cso_name(), " ", beforeCsoList.get(i).getBefore_cso_phonenumber()));
+        }
+        else {
                Log.d("location from db", getLat +":" + getLong);
                csosList.add(new TheCSO(beforeCsoList.get(i).getBefore_cso_name(), disBetweenCso + "Km away from you", beforeCsoList.get(i).getBefore_cso_phonenumber()));
            }
