@@ -31,7 +31,7 @@ public class UserLocation extends Service implements LocationListener {
     private final Context mContext;
 
 
-    boolean checkGPS = false;
+   public boolean checkGPS = false;
 
 
     boolean checkNetwork = false;

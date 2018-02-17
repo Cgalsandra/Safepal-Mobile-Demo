@@ -12,6 +12,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -24,7 +25,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationListener;
@@ -41,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -54,8 +60,10 @@ public class ReportingActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
     //location
-    public static double userLatitude ;
-    public static double userLongitude ;
+    public static double userLatitude =0;
+    public static double userLongitude =0;
+    private final static int PLAY_SERVICES_REQUEST = 1000;
+
 
     private FusedLocationProviderApi locationProvider = LocationServices.FusedLocationApi;
     private GoogleApiClient googleApiClient;
@@ -86,11 +94,15 @@ public class ReportingActivity extends AppCompatActivity implements
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
+
+
+        // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .build();
+                .addApi(AppIndex.API).build();
         locationRequest = new LocationRequest();
         locationRequest.setInterval(30 * 1000);
         locationRequest.setFastestInterval(10 * 1000);
@@ -108,9 +120,9 @@ public class ReportingActivity extends AppCompatActivity implements
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(logging);  // <-- this is the important line!
         httpClient.addInterceptor(chain -> {
-            okhttp3.Request originalRequest = chain.request();
-            okhttp3.Request.Builder builder = originalRequest.newBuilder().header("userid", Constant.USER_ID);
-            okhttp3.Request newRequest = builder.build();
+            Request originalRequest = chain.request();
+            Request.Builder builder = originalRequest.newBuilder().header("userid", Constant.USER_ID);
+            Request newRequest = builder.build();
             return chain.proceed(newRequest);
         }).build();
 
@@ -215,7 +227,7 @@ public class ReportingActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 moveTaskToBack(true);
-                android.os.Process.killProcess(android.os.Process.myPid());
+                Process.killProcess(Process.myPid());
                 System.exit(2);
             }
         });
@@ -370,14 +382,26 @@ public class ReportingActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        googleApiClient.connect();
+        if (googleApiClient != null) {
+            googleApiClient.connect();
+        }
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.start(googleApiClient, getIndexApiAction());
     }
 
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,this);
+
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+          // googleApiClient.disconnect();
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        }
+
+
+
     }
 
     @Override
@@ -389,8 +413,11 @@ public class ReportingActivity extends AppCompatActivity implements
     }
     @Override
     protected void onStop() {
-        super.onStop();
-        googleApiClient.disconnect();
+        super.onStop();// ATTENTION: This was auto-generated to implement the App Indexing API.
+// See https://g.co/AppIndexing/AndroidStudio for more information.
+        if(googleApiClient != null && googleApiClient.isConnected()){
+        AppIndex.AppIndexApi.end(googleApiClient, getIndexApiAction());
+        googleApiClient.disconnect();}
     }
 
 
@@ -416,6 +443,40 @@ public class ReportingActivity extends AppCompatActivity implements
 
     }
 
+
+    public boolean checkPlayServices() {
+
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+
+        int resultCode = googleApiAvailability.isGooglePlayServicesAvailable(getApplicationContext());
+
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (googleApiAvailability.isUserResolvableError(resultCode)) {
+                googleApiAvailability.getErrorDialog(this,resultCode,
+                        PLAY_SERVICES_REQUEST).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "This device is not supported.",Toast.LENGTH_LONG).show();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Reporting Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
 }
 
 

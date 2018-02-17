@@ -1,12 +1,15 @@
 package com.unfpa.safepal.home;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +18,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -50,6 +55,7 @@ public class HomeActivity extends AppCompatActivity {
      * Next and buttonExit button
      */
     private static final int PERMISSION_REQUEST_CODE = 200;
+
    // private View view;
 
 
@@ -117,14 +123,13 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if(checkLocationPermission()){
-                   // Log.d("Status", "permission checked");
-                    // starts the reporting if location is granted
-               // startActivity(new Intent(getApplicationContext(), ReportingActivity.class));}
                   openReporting();
+
                 }
                 else{
 
                     requestLocationPermission();
+
 
                 }
             }
@@ -411,7 +416,13 @@ public class HomeActivity extends AppCompatActivity {
                         }
                         //version less than Marshmallow
                         else  {
-                            openReporting();
+                            if(isLocationEnabled(getApplicationContext()))
+                                openReporting();
+                            else
+                            {
+                                showSettingsAlert();
+
+                            }
                             Log.d("Status", "Handles location for android < version Marshmallow ");
                         }
 
@@ -435,5 +446,54 @@ public class HomeActivity extends AppCompatActivity {
 
     public void openReporting(){
         startActivity(new Intent(getApplicationContext(), ReportingActivity.class));
+    }
+
+    public static boolean isLocationEnabled(Context context) {
+        int locationMode = 0;
+        String locationProviders;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            try {
+                locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
+
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            return locationMode != Settings.Secure.LOCATION_MODE_OFF;
+
+        }else{
+            locationProviders = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return !TextUtils.isEmpty(locationProviders);
+        }
+
+
+    }
+    public void showSettingsAlert() {
+        android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(this);
+
+
+        alertDialog.setTitle(Html.fromHtml("<center><font color='#01a89e'>"+"Use Location?"+"</font></center>"));
+
+        alertDialog.setMessage("Safepal needs you to turn on your location inorder to work properly ");
+        alertDialog.setIcon(R.mipmap.ic_launcher);
+
+        alertDialog.setPositiveButton("Turn on", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        });
+
+
+        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+
+        alertDialog.show();
     }
 }

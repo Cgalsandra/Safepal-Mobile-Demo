@@ -179,15 +179,19 @@ public class AnotherPersonIncidentFormFragment extends Fragment {
         spinnerAgeRange = (Spinner) rootView.findViewById(R.id.age_range_spinner);
 
         apifIncidentLocationEt = (AutoCompleteTextView) rootView.findViewById(R.id.incident_location_actv);
-        //set reporting location to incident placeholder
-        Address currentReportingAddress = ReportingActivity.getFullAddress(getActivity().getApplicationContext(), userLatitude, userLongitude);
-        if(currentReportingAddress!=null)
-        {
-            String address = currentReportingAddress.getAddressLine(0);
-            if(!TextUtils.isEmpty(address)) {
-                apifIncidentLocationEt.setText(address);
-            }
+        if(userLongitude!=0||userLatitude!=0){
+            try {
 
+                //set reporting location to incident placeholder
+                Address currentReportingAddress = ReportingActivity.getFullAddress(getActivity().getApplicationContext(), userLatitude, userLongitude);
+                if (currentReportingAddress != null) {
+                    String address = currentReportingAddress.getAddressLine(0);
+                    if (!TextUtils.isEmpty(address)) {
+                        apifIncidentLocationEt.setText(address);
+                    }
+
+                }
+            }catch (Exception e){e.printStackTrace();}
         }
 
         apifIncidentDetailsEt = (EditText)rootView.findViewById(R.id.sif_incident_details_et);
